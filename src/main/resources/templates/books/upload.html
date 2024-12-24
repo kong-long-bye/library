@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>上传图书</title>
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/dashboard.css">
+    <link rel="stylesheet" href="/css/books.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>数字图书馆</h1>
+            <div class="user-info">
+                <span th:text="${'欢迎, ' + session.user.username}">欢迎, 用户</span>
+                <a href="/api/logout">退出</a>
+            </div>
+        </header>
+
+        <div class="content-wrapper">
+            <nav class="sidebar">
+                <ul class="nav-menu">
+                    <li><a href="/dashboard">个人中心</a></li>
+                    <li><a href="/books/upload" class="active">上传图书</a></li>
+                    <li><a href="/books">图书列表</a></li>
+                    <li><a href="/user/downloads">下载历史</a></li>
+                    <li><a href="/user/favorites">我的收藏</a></li>
+                </ul>
+            </nav>
+
+            <main class="main-content">
+                <div class="upload-container">
+                    <h2>上传图书</h2>
+                    <form id="uploadForm" class="upload-form">
+                        <div class="form-group">
+                            <label for="title">书名</label>
+                            <input type="text" id="title" name="title" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="author">作者</label>
+                            <input type="text" id="author" name="author" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="isbn">ISBN</label>
+                            <input type="text" id="isbn" name="isbn" required>
+                            <small class="form-tip">请输入13位ISBN编号</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="category">分类</label>
+                            <select id="category" name="category" required>
+                                <option value="">请选择分类</option>
+                                <option value="novel">小说文学</option>
+                                <option value="tech">技术科技</option>
+                                <option value="education">教育教材</option>
+                                <option value="medicine">医学健康</option>
+                                <option value="art">艺术设计</option>
+                                <option value="other">其他</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="description">简介</label>
+                            <textarea id="description" name="description" rows="4"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="file">选择文件</label>
+                            <div class="file-upload">
+                                <input type="file" id="file" name="file" accept=".pdf,.epub,.mobi" required>
+                                <div class="file-info">支持PDF, EPUB, MOBI格式，最大50MB</div>
+                            </div>
+                        </div>
+
+                        <div id="message"></div>
+                        <button type="submit" class="btn-submit">上传图书</button>
+                    </form>
+                </div>
+            </main>
+        </div>
+    </div>
+    <script src="/js/books.js"></script>
+</body>
+</html> 

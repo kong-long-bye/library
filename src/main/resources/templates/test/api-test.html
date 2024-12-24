@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>API测试页面</title>
+    <style>
+        .test-section { margin: 20px; padding: 20px; border: 1px solid #ddd; }
+        .result { margin-top: 10px; padding: 10px; background: #f5f5f5; }
+    </style>
+</head>
+<body>
+    <div class="test-section">
+        <h3>文件上传测试</h3>
+        <form id="uploadForm">
+            <div>
+                <label>标题：</label>
+                <input type="text" name="title" value="测试图书">
+            </div>
+            <div>
+                <label>作者：</label>
+                <input type="text" name="author" value="测试作者">
+            </div>
+            <div>
+                <label>ISBN：</label>
+                <input type="text" name="isbn" value="9787111111111">
+            </div>
+            <div>
+                <label>分类：</label>
+                <select name="category">
+                    <option value="tech">技术科技</option>
+                    <option value="novel">小说文学</option>
+                </select>
+            </div>
+            <div>
+                <label>文件：</label>
+                <input type="file" name="file" accept=".pdf,.epub,.mobi">
+            </div>
+            <button type="submit">上传</button>
+        </form>
+        <div id="uploadResult" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>图书搜索测试</h3>
+        <div>
+            <input type="text" id="searchTitle" placeholder="书名">
+            <input type="text" id="searchAuthor" placeholder="作者">
+            <select id="searchCategory">
+                <option value="">全部分类</option>
+                <option value="tech">技术科技</option>
+                <option value="novel">小说文学</option>
+            </select>
+            <button onclick="searchBooks()">搜索</button>
+        </div>
+        <div id="searchResult" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>图书审核测试</h3>
+        <div>
+            <input type="text" id="bookId" placeholder="图书ID">
+            <select id="reviewStatus">
+                <option value="已通过">通过</option>
+                <option value="未通过">拒绝</option>
+            </select>
+            <button onclick="reviewBook()">提交审��</button>
+        </div>
+        <div id="reviewResult" class="result"></div>
+    </div>
+
+    <script>
+        // 文件上传测试
+        document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            try {
+                const response = await fetch('/api/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await response.json();
+                document.getElementById('uploadResult').textContent = 
+                    JSON.stringify(result, null, 2);
+            } catch (error) {
+                document.getElementById('uploadResult').textContent = 
+                    '错误：' + error.message;
+            }
+        });
+
+        // 图书搜索测试
+        async function searchBooks() {
+            const title = document.getElementById('searchTitle').value;
+            const author = document.getElementById('searchAuthor').value;
+            const category = document.getElementById('searchCategory').value;
+            
+            try {
+                const response = await fetch(`/api/books?title=${title}&author=${author}&category=${category}`);
+                const result = await response.json();
+                document.getElementById('searchResult').textContent = 
+                    JSON.stringify(result, null, 2);
+            } catch (error) {
+                document.getElementById('searchResult').textContent = 
+                    '错误：' + error.message;
+            }
+        }
+
+        // 图书审核测试
+        async function reviewBook() {
+            const bookId = document.getElementById('bookId').value;
+            const status = document.getElementById('reviewStatus').value;
+            
+            try {
+                const response = await fetch(`/api/review/${bookId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `status=${status}`
+                });
+                const result = await response.json();
+                document.getElementById('reviewResult').textContent = 
+                    JSON.stringify(result, null, 2);
+            } catch (error) {
+                document.getElementById('reviewResult').textContent = 
+                    '错误：' + error.message;
+            }
+        }
+    </script>
+</body>
+</html> 

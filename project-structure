@@ -1,0 +1,17 @@
+src/main/
+  ├── java/
+  │   └── com/
+  │       └── example/
+  │           └── digitallibrary/
+  └── resources/
+      ├── static/
+      │   ├── css/
+      │   ├── js/
+      │   │   ├── components/
+      │   │   ├── views/
+      │   │   ├── router/
+      │   │   ├── store/
+      │   │   └── app.js
+      │   └── images/
+      └── templates/
+          └── index.html 

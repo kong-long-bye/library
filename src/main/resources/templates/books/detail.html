@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${book.title + ' - 数字图书馆'}">书籍详情</title>
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/dashboard.css">
+    <link rel="stylesheet" href="/css/books.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>数字图书馆</h1>
+            <div class="user-info">
+                <span th:text="${'欢迎, ' + session.user.username}">欢迎, 用户</span>
+                <a href="/api/logout">退出</a>
+            </div>
+        </header>
+
+        <div class="content-wrapper">
+            <nav class="sidebar">
+                <ul class="nav-menu">
+                    <li><a href="/dashboard">个人中心</a></li>
+                    <li><a href="/books/upload">上传图书</a></li>
+                    <li><a href="/books" class="active">图书列表</a></li>
+                    <li><a href="/user/downloads">下载历史</a></li>
+                    <li><a href="/user/favorites">我��收藏</a></li>
+                </ul>
+            </nav>
+
+            <main class="main-content">
+                <div class="book-detail">
+                    <div class="book-header">
+                        <h2 th:text="${book.title}">书名</h2>
+                        <div class="book-actions">
+                            <button class="btn-download" th:if="${book.status == '已通过'}">下载</button>
+                            <button class="btn-favorite" th:data-id="${book.id}">收藏</button>
+                            <div th:if="${session.user.isAdmin}" class="admin-actions">
+                                <button class="btn-approve" th:if="${book.status == '待审核'}">通过</button>
+                                <button class="btn-reject" th:if="${book.status == '待审核'}">拒绝</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="book-info">
+                        <div class="info-item">
+                            <label>作者：</label>
+                            <span th:text="${book.author}">作者名</span>
+                        </div>
+                        <div class="info-item">
+                            <label>ISBN：</label>
+                            <span th:text="${book.isbn}">ISBN号</span>
+                        </div>
+                        <div class="info-item">
+                            <label>分类：</label>
+                            <span th:text="${book.category}">分类名</span>
+                        </div>
+                        <div class="info-item">
+                            <label>上传时间：</label>
+                            <span th:text="${#temporals.format(book.uploadTime, 'yyyy-MM-dd HH:mm')}">上传时间</span>
+                        </div>
+                        <div class="info-item">
+                            <label>状态：</label>
+                            <span th:text="${book.status}" th:class="${book.status}">状态</span>
+                        </div>
+                    </div>
+
+                    <div class="book-description">
+                        <h3>图书简介</h3>
+                        <p th:text="${book.description}">图书简介内容</p>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+    <script src="/js/books.js"></script>
+</body>
+</html> 

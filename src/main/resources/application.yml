@@ -1,0 +1,6 @@
+library:
+  upload:
+    #base-path: /data/library/uploads  # Linux系统推荐路径
+    base-path: D:/library/uploads   # Windows系统推荐路径
+    book-path: ${library.upload.base-path}/books
+    max-file-size: 500MB              # 最大文件大小

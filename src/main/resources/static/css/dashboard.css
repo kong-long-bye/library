@@ -1,0 +1,318 @@
+/* 仪表盘页面样式 */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    background: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 2rem;
+}
+
+.header h1 {
+    color: var(--primary-color);
+    font-size: 1.8rem;
+}
+
+.sidebar {
+    width: 280px;
+    float: left;
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.main-content {
+    margin-left: 300px;
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    min-height: 600px;
+}
+
+.nav-menu {
+    list-style: none;
+}
+
+.nav-menu li {
+    margin-bottom: 0.8rem;
+}
+
+.nav-menu a {
+    display: block;
+    padding: 0.8rem 1rem;
+    color: var(--text-color);
+    text-decoration: none;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.nav-menu a:hover {
+    background: var(--primary-color);
+    color: white;
+    transform: translateX(5px);
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.user-info span {
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.user-info a {
+    color: var(--danger-color);
+    text-decoration: none;
+    font-weight: 500;
+    padding: 8px 16px;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+.user-info a:hover {
+    background-color: #fde7e7;
+}
+
+/* 内容区域样式 */
+.main-content h2 {
+    color: var(--text-color);
+    margin-bottom: 1.5rem;
+    font-size: 1.5rem;
+}
+
+.recent-activities, .recommended-books {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.btn-search-page {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    text-decoration: none;
+    color: var(--text-color);
+    background: white;
+    border: 1px solid var(--border-color);
+    transition: all 0.3s ease;
+}
+
+.btn-search-page:hover {
+    background: var(--bg-color);
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+.icon-search {
+    width: 16px;
+    height: 16px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E");
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+.recent-activities {
+    margin-bottom: 2rem;
+}
+
+.recent-activities h3 {
+    margin: 1rem 0;
+    color: #333;
+    font-size: 1.2rem;
+}
+
+.review-books {
+    background: #fff;
+    border-radius: 4px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.review-history {
+    background: #fff;
+    border-radius: 4px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.book-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin-top: 20px;
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+}
+
+.book-table th,
+.book-table td {
+    padding: 16px;
+    text-align: left;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.book-table th {
+    background-color: #fafafa;
+    font-weight: 500;
+    color: #262626;
+    font-size: 14px;
+}
+
+.book-table td {
+    font-size: 14px;
+    color: #595959;
+}
+
+.book-table tr:hover td {
+    background-color: #fafafa;
+}
+
+.book-title {
+    color: #262626;
+    font-weight: 500;
+}
+
+.book-author {
+    color: #595959;
+}
+
+.book-isbn {
+    font-family: monospace;
+    color: #8c8c8c;
+}
+
+.book-category {
+    color: #595959;
+}
+
+.action-buttons {
+    white-space: nowrap;
+}
+
+.btn-approve,
+.btn-reject {
+    padding: 6px 16px;
+    margin: 0 4px;
+    border-radius: 4px;
+    cursor: pointer;
+    border: 1px solid;
+    background: transparent;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.btn-approve {
+    border-color: #52c41a;
+    color: #52c41a;
+}
+
+.btn-reject {
+    border-color: #ff4d4f;
+    color: #ff4d4f;
+}
+
+.btn-approve:hover {
+    background-color: #52c41a;
+    color: #fff;
+}
+
+.btn-reject:hover {
+    background-color: #ff4d4f;
+    color: #fff;
+}
+
+.uploader-name {
+    color: #1890ff;
+}
+
+.upload-time {
+    color: rgba(0, 0, 0, 0.65);
+}
+
+.btn-back {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 16px;
+    color: #1890ff;
+    text-decoration: none;
+}
+
+.btn-back:hover {
+    color: #40a9ff;
+}
+
+/* 加载遮罩 */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #1890ff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+/* 消息提示 */
+.toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 12px 24px;
+    border-radius: 4px;
+    color: #fff;
+    font-size: 14px;
+    opacity: 0;
+    transform: translateY(-20px);
+    transition: all 0.3s ease;
+    z-index: 1001;
+}
+
+.toast.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.toast-success {
+    background-color: #52c41a;
+}
+
+.toast-error {
+    background-color: #ff4d4f;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+} 

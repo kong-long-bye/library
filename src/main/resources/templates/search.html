@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>数字图书馆</title>
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/search.css">
+</head>
+<body>
+    <div class="search-container">
+        <header class="header">
+            <div class="user-nav">
+                <a href="/dashboard" class="user-center">
+                    <i class="icon-user"></i>
+                    <span th:text="${session.user.username}">用户名</span>
+                </a>
+                <a href="/api/logout" class="btn-logout">退出</a>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="search-box">
+                <h1>数字图书馆</h1>
+                <div class="search-form">
+                    <input type="text" id="searchInput" placeholder="搜索书名、作者、ISBN..." autofocus>
+                    <button id="searchBtn" class="btn-search">搜索</button>
+                </div>
+                <div class="quick-links">
+                    <a href="/books/upload" class="link">上传图书</a>
+                    <a href="/user/favorites" class="link">我的收藏</a>
+                    <a href="/user/downloads" class="link">下载记录</a>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="/js/search.js"></script>
+</body>
+</html> 

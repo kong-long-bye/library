@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>图书列表 - 数字图书馆</title>
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/books.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="header-left">
+                <h1>数字图书馆</h1>
+            </div>
+            <div class="user-nav">
+                <a href="/dashboard" class="user-center">
+                    <i class="icon-user"></i>
+                    <span th:text="${session.user.username}">用户名</span>
+                </a>
+                <a href="/api/logout" class="btn-logout">退出</a>
+            </div>
+        </header>
+
+        <div class="search-section">
+            <div class="search-container">
+                <input type="text" id="searchInput" th:value="${param.search}" placeholder="搜索书名、作者、ISBN...">
+                <button id="searchBtn" class="btn-search">搜索</button>
+            </div>
+        </div>
+
+        <main class="main-content">
+            <div class="books-header">
+                <div class="result-info">
+                    <span class="total-count" th:text="${'找到 ' + totalBooks + ' 本相关图书'}">找到 0 本相关图书</span>
+                </div>
+                <div class="view-options">
+                    <select id="sortOption" class="sort-select">
+                        <option value="relevance">相关度</option>
+                        <option value="year_desc">出版年份 ↓</option>
+                        <option value="year_asc">出版年份 ↑</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="books-list" id="booksContainer">
+                <!-- 书籍列表将通过JavaScript动态加载 -->
+            </div>
+
+            <div class="pagination" id="pagination">
+                <!-- 分页控件将通过JavaScript动态加载 -->
+            </div>
+        </main>
+    </div>
+    <script src="/js/books.js"></script>
+</body>
+</html> 

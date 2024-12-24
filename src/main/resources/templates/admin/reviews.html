@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>审核图书 - 管理员中心</title>
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/dashboard.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="header-left">
+                <h1>审核图书</h1>
+            </div>
+            <div class="header-right">
+                <a href="/admin" class="btn-back">
+                    <i class="icon-back"></i>
+                    返回管理中心
+                </a>
+                <div class="user-info">
+                    <span th:text="${session.user.username}">管理员</span>
+                    <a href="/logout" class="btn-logout">退出</a>
+                </div>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="review-books">
+                <table class="book-table">
+                    <thead>
+                        <tr>
+                            <th>书名</th>
+                            <th>作者</th>
+                            <th>ISBN</th>
+                            <th>所属类别</th>
+                            <th>上传者</th>
+                            <th>上传时间</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reviewBooks">
+                        <!-- 待审核图书列表将通过JavaScript动态加载 -->
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+    <script src="/js/admin-reviews.js"></script>
+</body>
+</html> 

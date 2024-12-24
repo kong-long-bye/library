@@ -1,0 +1,66 @@
+/* 全局样式 */
+:root {
+    --primary-color: #1a73e8;
+    --secondary-color: #34a853;
+    --accent-color: #fbbc05;
+    --danger-color: #ea4335;
+    --text-color: #202124;
+    --text-secondary: #5f6368;
+    --background-color: #f8f9fa;
+    --border-color: #dadce0;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.5;
+    color: #333;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+header {
+    padding: 20px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #eee;
+}
+
+header h1 {
+    font-size: 24px;
+    color: #1890ff;
+}
+
+nav a {
+    margin-left: 20px;
+    color: #666;
+    text-decoration: none;
+}
+
+nav a:hover {
+    color: #1890ff;
+}
+
+.welcome {
+    text-align: center;
+    padding: 60px 0;
+}
+
+.welcome h2 {
+    font-size: 28px;
+    margin-bottom: 20px;
+}
+
+.welcome p {
+    color: #666;
+} 

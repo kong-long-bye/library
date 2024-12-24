@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>管理员中心 - 数字图书馆</title>
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/dashboard.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="header-left">
+                <h1>管理员中心</h1>
+            </div>
+            <div class="header-right">
+                <a href="/search" class="btn-search-page">
+                    <i class="icon-search"></i>
+                    返回搜索
+                </a>
+                <div class="user-info">
+                    <span th:text="${session.user.username}">管理员</span>
+                    <a href="/logout" class="btn-logout">退出</a>
+                </div>
+            </div>
+        </header>
+        
+        <nav class="sidebar">
+            <ul class="nav-menu">
+                <li><a href="/admin/upload">上传图书</a></li>
+                <li><a href="/admin/reviews">审核图书</a></li>
+                <li><a href="/admin/downloads">下载历史</a></li>
+                <li><a href="/admin/favorites">我的收藏</a></li>
+                <li><a href="/change-password">修改密码</a></li>
+            </ul>
+        </nav>
+        
+        <main class="main-content">
+            <h2>最近活动</h2>
+            <div class="recent-activities">
+                <div class="review-books">
+                    <h3>待审核图书</h3>
+                    <table class="book-table">
+                        <thead>
+                            <tr>
+                                <th>书名</th>
+                                <th>作者</th>
+                                <th>ISBN</th>
+                                <th>所属类别</th>
+                                <th>上传者</th>
+                                <th>上传时间</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="reviewBooks">
+                            <!-- 待审核图书列表将通过JavaScript动态加载 -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="review-history">
+                    <h3>审核历史</h3>
+                    <div id="reviewHistory">
+                        <!-- 这里可以显示最近的审核记录 -->
+                        <p>暂无审核记录</p>
+                    </div>
+                </div>
+            </div>
+            
+            <h2>推荐图书</h2>
+            <div class="recommended-books">
+                <!-- 这里可以显示推荐的图书 -->
+                <p>暂无推荐图书</p>
+            </div>
+        </main>
+    </div>
+    <script src="/js/admin.js"></script>
+</body>
+</html> 
