@@ -41,6 +41,7 @@ public class BookController {
             System.out.println("接收到上传请求 - 文件大小: " + file.getSize());
 
             Book book = bookService.uploadBook(title, author, isbn, category, file, user);
+            System.out.println("上传成功，返回响应");
             return ResponseEntity.ok(Map.of(
                 "message", "上传成功",
                 "bookId", book.getId()

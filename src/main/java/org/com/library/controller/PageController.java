@@ -46,10 +46,10 @@ public class PageController {
     @GetMapping("/dashboard")
     public String dashboard(HttpSession session) {
         User user = (User) session.getAttribute("user");
+        System.out.println("访问 dashboard - 用户: " + (user != null ? user.getUsername() : "未登录"));
         if (user == null) {
             return "redirect:/login";
         }
-        // 如果是管理员，跳转到管理员界面
         if (user.isAdmin()) {
             return "redirect:/admin";
         }

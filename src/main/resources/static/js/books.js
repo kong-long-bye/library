@@ -5,8 +5,14 @@ if (uploadForm) {
         e.preventDefault();
         
         const formData = new FormData(uploadForm);
+        const submitButton = uploadForm.querySelector('button[type="submit"]');
         
         try {
+            // 禁用提交按钮，防止重复提交
+            if (submitButton) {
+                submitButton.disabled = true;
+            }
+            
             const response = await fetch('/api/upload', {
                 method: 'POST',
                 body: formData
@@ -19,11 +25,30 @@ if (uploadForm) {
             }
             
             const data = await response.json();
-            alert('上传成功！');
-            window.location.href = '/dashboard';
+            
+            // 显示成功消息
+            showSuccess('上传成功！等待管理员审核...');
+            
+            // 添加调试日志
+            console.log('准备跳转到 dashboard...');
+            
+            // 重置表单
+            uploadForm.reset();
+            
+            // 3秒后跳转到仪表盘页面
+            setTimeout(() => {
+                console.log('执行跳转...');
+                window.location.href = '/dashboard';
+            }, 3000);
+            
         } catch (error) {
             console.error('上传错误:', error);
-            alert('上传失败: ' + error.message);
+            showError(error.message || '上传失败，请稍后重试');
+        } finally {
+            // 重新启用提交按钮
+            if (submitButton) {
+                submitButton.disabled = false;
+            }
         }
     });
 }
@@ -142,20 +167,32 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// 辅助��数
+// 辅助函数
 function showSuccess(message) {
     const messageDiv = document.getElementById('message');
     if (messageDiv) {
-        messageDiv.className = 'success';
+        messageDiv.className = 'message success';
         messageDiv.textContent = message;
+        messageDiv.style.display = 'block';
+        
+        // 3秒后隐藏消息
+        setTimeout(() => {
+            messageDiv.style.display = 'none';
+        }, 3000);
     }
 }
 
 function showError(message) {
     const messageDiv = document.getElementById('message');
     if (messageDiv) {
-        messageDiv.className = 'error';
+        messageDiv.className = 'message error';
         messageDiv.textContent = message;
+        messageDiv.style.display = 'block';
+        
+        // 3秒后隐藏消息
+        setTimeout(() => {
+            messageDiv.style.display = 'none';
+        }, 3000);
     }
 }
 
