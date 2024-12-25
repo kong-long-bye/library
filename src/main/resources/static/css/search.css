@@ -9,46 +9,29 @@
     justify-content: flex-end;
 }
 
-.user-nav {
+.nav-links {
     display: flex;
-    align-items: center;
     gap: 1rem;
 }
 
-.user-center {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
+.nav-link {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 500;
     padding: 0.5rem 1rem;
     border-radius: 4px;
-    text-decoration: none;
-    color: var(--text-color);
     background: white;
     transition: all 0.3s ease;
 }
 
-.user-center:hover {
+.nav-link:hover {
     background: #f0f0f0;
-}
-
-.btn-logout {
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
-    text-decoration: none;
-    color: #ff4d4f;
-    background: white;
-    transition: all 0.3s ease;
-}
-
-.btn-logout:hover {
-    background: #fff1f0;
 }
 
 .main-content {
     display: flex;
-    justify-content: center;
+    flex-direction: column;
     align-items: center;
-    min-height: calc(100vh - 80px);
     padding: 2rem;
 }
 
@@ -56,6 +39,7 @@
     text-align: center;
     width: 100%;
     max-width: 600px;
+    margin-bottom: 2rem;
 }
 
 .search-box h1 {
@@ -67,7 +51,6 @@
 .search-form {
     display: flex;
     gap: 0.5rem;
-    margin-bottom: 2rem;
 }
 
 .search-form input {
@@ -95,18 +78,48 @@
     box-shadow: 0 2px 8px rgba(0,0,0,0.2);
 }
 
-.quick-links {
-    display: flex;
-    justify-content: center;
-    gap: 2rem;
+.search-results {
+    width: 100%;
+    max-width: 1200px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    padding: 1rem;
+    margin-top: 2rem;
 }
 
-.quick-links .link {
-    color: var(--text-secondary);
-    text-decoration: none;
-    transition: all 0.3s ease;
+.results-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
 }
 
-.quick-links .link:hover {
-    color: var(--primary-color);
+.results-table th,
+.results-table td {
+    padding: 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+.results-table th {
+    background: #f5f5f5;
+    font-weight: 500;
+}
+
+.loading {
+    text-align: center;
+    color: #666;
+    padding: 2rem;
+}
+
+.no-results {
+    text-align: center;
+    color: #666;
+    padding: 2rem;
+}
+
+.error-message {
+    text-align: center;
+    color: #ff4d4f;
+    padding: 2rem;
 } 

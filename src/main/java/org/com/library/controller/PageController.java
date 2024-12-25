@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import jakarta.servlet.http.HttpSession;
+import org.springframework.ui.Model;
 
 @Controller
 public class PageController {
@@ -64,22 +65,13 @@ public class PageController {
         return "admin";
     }
 
-    @GetMapping("/books")
-    public String bookList(HttpSession session, 
-                         @RequestParam(required = false) String search) {
-        if (session.getAttribute("user") == null) {
-            return "redirect:/login";
-        }
-        return "books/list";
-    }
-
     @GetMapping("/books/upload")
     public String uploadBook(HttpSession session) {
         User user = (User) session.getAttribute("user");
         if (user == null) {
             return "redirect:/login";
         }
-        // 如��是管理员访问，重定向到管理员的上传页面
+        // 如是管理员访问，重定向到管理员的上传页面
         if (user.isAdmin()) {
             return "redirect:/admin/upload";
         }

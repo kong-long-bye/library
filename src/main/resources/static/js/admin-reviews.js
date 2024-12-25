@@ -4,26 +4,102 @@ function loadPendingBooks() {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                const tbody = document.getElementById('reviewBooks');
-                tbody.innerHTML = data.data.map(book => `
+                const pendingList = document.getElementById('pendingBooks');
+                if (data.data && data.data.length > 0) {
+                    pendingList.innerHTML = data.data.map(book => `
+                        <div class="pending-item" onclick="showBookDetail(${JSON.stringify(book).replace(/"/g, '&quot;')})">
+                            <div class="pending-header">
+                                <span class="pending-title">${book.title}</span>
+                            </div>
+                            <div class="pending-info">
+                                <p>作者：${book.author}</p>
+                                <p>上传时间：${formatDate(book.uploadTime)}</p>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    pendingList.innerHTML = '<div class="empty-state">暂无待审核图书</div>';
+                }
+            }
+        })
+        .catch(error => {
+            console.error('加载待审核列表失败:', error);
+            showErrorMessage('加载待审核列表失败，请刷新页面重试');
+        });
+}
+
+// 显示图书详情
+function showBookDetail(book) {
+    // 移除其他项目的active类
+    document.querySelectorAll('.pending-item').forEach(item => {
+        item.classList.remove('active');
+    });
+    
+    // 为当前选中项添加active类
+    event.currentTarget.classList.add('active');
+    
+    const detailDiv = document.getElementById('bookDetail');
+    detailDiv.innerHTML = `
+        <div class="book-info">
+            <h3>${book.title}</h3>
+            <div class="book-info-grid">
+                <div class="info-item">
+                    <label>作者</label>
+                    <span>${book.author}</span>
+                </div>
+                <div class="info-item">
+                    <label>ISBN</label>
+                    <span>${book.isbn}</span>
+                </div>
+                <div class="info-item">
+                    <label>所属类别</label>
+                    <span>${book.category}</span>
+                </div>
+                <div class="info-item">
+                    <label>上传者</label>
+                    <span>${book.uploader.username}</span>
+                </div>
+                <div class="info-item">
+                    <label>上传时间</label>
+                    <span>${formatDate(book.uploadTime)}</span>
+                </div>
+                <div class="info-item">
+                    <label>文件格式</label>
+                    <span>${book.format}</span>
+                </div>
+            </div>
+        </div>
+        <div class="review-actions">
+            <button onclick="reviewBook(${book.id}, '已通过')" class="btn-approve">通过</button>
+            <button onclick="reviewBook(${book.id}, '未通过')" class="btn-reject">拒绝</button>
+        </div>
+    `;
+}
+
+// 加载审核历史
+function loadReviewHistory() {
+    fetch('/api/books/review-history')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const historyList = document.getElementById('reviewHistory');
+                historyList.innerHTML = data.data.map(book => `
                     <tr>
-                        <td class="book-title">${book.title}</td>
-                        <td class="book-author">${book.author}</td>
-                        <td class="book-isbn">${book.isbn}</td>
-                        <td class="book-category">${book.category}</td>
-                        <td class="uploader-name">${book.uploader.username}</td>
-                        <td class="upload-time">${formatDate(book.uploadTime)}</td>
-                        <td class="action-buttons">
-                            <button onclick="reviewBook(${book.id}, '已通过')" class="btn-approve">通过</button>
-                            <button onclick="reviewBook(${book.id}, '未通过')" class="btn-reject">拒绝</button>
+                        <td>${book.title}</td>
+                        <td>${book.author}</td>
+                        <td>${book.isbn}</td>
+                        <td>
+                            <span class="status-badge status-${book.status === '已通过' ? 'approved' : 'rejected'}">
+                                ${book.status}
+                            </span>
                         </td>
                     </tr>
                 `).join('');
             }
         })
         .catch(error => {
-            console.error('加载待审核列表失败:', error);
-            showErrorMessage('加载待审核列表失败，请刷新页面重试');
+            console.error('加载审核历史失败:', error);
+            showErrorMessage('加载审核历史失败');
         });
 }
 
@@ -42,7 +118,15 @@ function reviewBook(bookId, status) {
     .then(data => {
         if (data.success) {
             showSuccessMessage(data.message);
+            // 刷新待审核列表和审核历史
             loadPendingBooks();
+            loadReviewHistory();
+            // 清空详情面板
+            document.getElementById('bookDetail').innerHTML = `
+                <div class="empty-state">
+                    <p>请从左侧选择要审核的图书</p>
+                </div>
+            `;
         } else {
             showErrorMessage(data.message);
         }
@@ -104,8 +188,13 @@ function showMessage(message, type) {
     }, 100);
 }
 
-// 页面加载时执行，并每分钟刷新一次
+// 页面加载时执行
 document.addEventListener('DOMContentLoaded', () => {
     loadPendingBooks();
-    setInterval(loadPendingBooks, 60000);
+    loadReviewHistory();
+    // 每分钟刷新一次
+    setInterval(() => {
+        loadPendingBooks();
+        loadReviewHistory();
+    }, 60000);
 }); 

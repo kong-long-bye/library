@@ -9,12 +9,9 @@
 <body>
     <div class="search-container">
         <header class="header">
-            <div class="user-nav">
-                <a href="/dashboard" class="user-center">
-                    <i class="icon-user"></i>
-                    <span th:text="${session.user.username}">用户名</span>
-                </a>
-                <a href="/api/logout" class="btn-logout">退出</a>
+            <div class="nav-links">
+                <a th:if="${session.user.admin}" href="/admin" class="nav-link">管理员中心</a>
+                <a th:unless="${session.user.admin}" href="/dashboard" class="nav-link">个人中心</a>
             </div>
         </header>
 
@@ -22,13 +19,33 @@
             <div class="search-box">
                 <h1>数字图书馆</h1>
                 <div class="search-form">
-                    <input type="text" id="searchInput" placeholder="搜索书名、作者、ISBN..." autofocus>
+                    <input type="text" id="searchInput" 
+                           placeholder="搜索书名、作者或ISBN..." autofocus>
                     <button id="searchBtn" class="btn-search">搜索</button>
                 </div>
-                <div class="quick-links">
-                    <a href="/books/upload" class="link">上传图书</a>
-                    <a href="/user/favorites" class="link">我的收藏</a>
-                    <a href="/user/downloads" class="link">下载记录</a>
+            </div>
+
+            <div class="search-results" id="searchResults" style="display: none;">
+                <div class="results-header">
+                    <span class="result-count" id="resultCount"></span>
+                </div>
+                <table class="results-table">
+                    <thead>
+                        <tr>
+                            <th>书名</th>
+                            <th>作者</th>
+                            <th>ISBN</th>
+                            <th>上传时间</th>
+                            <th>上传者</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resultsBody">
+                        <!-- 搜索结果将通过JavaScript动态加载 -->
+                    </tbody>
+                </table>
+                <div class="pagination" id="pagination">
+                    <!-- 分页控件将通过JavaScript动态加载 -->
                 </div>
             </div>
         </main>

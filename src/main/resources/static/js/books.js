@@ -1,35 +1,29 @@
 // 文件上传处理
 const uploadForm = document.getElementById('uploadForm');
 if (uploadForm) {
-    uploadForm.addEventListener('submit', async function(e) {
+    uploadForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         
-        const formData = new FormData();
-        formData.append('title', document.getElementById('title').value);
-        formData.append('author', document.getElementById('author').value);
-        formData.append('isbn', document.getElementById('isbn').value);
-        formData.append('category', document.getElementById('category').value);
-        formData.append('description', document.getElementById('description').value);
-        formData.append('file', document.getElementById('file').files[0]);
-
+        const formData = new FormData(uploadForm);
+        
         try {
             const response = await fetch('/api/upload', {
                 method: 'POST',
                 body: formData
             });
-
-            const data = await response.json();
             
-            if (response.ok) {
-                showSuccess('上传成功！等待管理员审核...');
-                setTimeout(() => {
-                    window.location.href = '/books';
-                }, 2000);
-            } else {
-                showError(data.message || '上传失败');
+            // 添加详细的错误处理
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || '上传失败');
             }
+            
+            const data = await response.json();
+            alert('上传成功！');
+            window.location.href = '/dashboard';
         } catch (error) {
-            showError('网络错误，请稍后重试');
+            console.error('上传错误:', error);
+            alert('上传失败: ' + error.message);
         }
     });
 }
@@ -148,7 +142,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// 辅助函数
+// 辅助��数
 function showSuccess(message) {
     const messageDiv = document.getElementById('message');
     if (messageDiv) {
@@ -179,4 +173,16 @@ function updateTotalCount(total) {
     if (totalCount) {
         totalCount.textContent = `找到 ${total} 本相关图书`;
     }
+}
+
+// 修改上传请求的配置
+function uploadBook(formData) {
+    return fetch('/api/upload', {
+        method: 'POST',
+        // 不要设置 Content-Type，让浏览器自动设置
+        // headers: {
+        //     'Content-Type': 'multipart/form-data'
+        // },
+        body: formData
+    });
 } 
