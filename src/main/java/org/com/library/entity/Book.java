@@ -50,7 +50,7 @@ public class Book {
     private Status status = Status.待审核;
 
     public enum Format {
-        PDF, EPUB, MOBI
+        PDF, EPUB, MOBI, TXT
     }
 
     public enum Status {

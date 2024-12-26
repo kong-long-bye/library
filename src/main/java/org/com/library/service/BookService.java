@@ -236,4 +236,10 @@ public class BookService {
         
         return bookRepository.searchApprovedBooks(query, pageable);
     }
+
+    // 获取图书详情
+    public Book getBookById(int id) throws BusinessException {
+        return bookRepository.findById(id)
+            .orElseThrow(() -> new BusinessException("图书不存在"));
+    }
 } 

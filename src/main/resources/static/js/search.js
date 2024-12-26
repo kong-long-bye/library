@@ -73,9 +73,6 @@ function displayResults(pageData) {
     const resultCount = document.getElementById('resultCount');
     const resultsBody = document.getElementById('resultsBody');
     
-    // 添加日志，查看接收到的数据
-    console.log('搜索结果数据:', pageData);
-    
     resultCount.textContent = `找到 ${pageData.totalElements} 条结果`;
     
     if (!pageData.content || pageData.content.length === 0) {
@@ -94,8 +91,9 @@ function displayResults(pageData) {
             <td>${book.isbn || ''}</td>
             <td>${formatDate(book.uploadTime) || ''}</td>
             <td>${book.uploader ? book.uploader.username : ''}</td>
-            <td>
-                <button onclick="viewBookDetail(${book.id})" class="btn-view">查看</button>
+            <td class="actions">
+                <button onclick="readBook(${book.id})" class="btn-action btn-read">在线阅读</button>
+                <button onclick="downloadBook(${book.id})" class="btn-action btn-download">下载</button>
             </td>
         </tr>
     `).join('');
@@ -149,4 +147,43 @@ function showError(message) {
             <td colspan="6" class="error-message">${message}</td>
         </tr>
     `;
+}
+
+// 添加下载功能
+async function downloadBook(bookId) {
+    try {
+        const response = await fetch(`/api/books/${bookId}/download`);
+        if (!response.ok) {
+            throw new Error('下载失败');
+        }
+        
+        // 获取文件名
+        const contentDisposition = response.headers.get('Content-Disposition');
+        let filename = 'download';
+        if (contentDisposition) {
+            const matches = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(contentDisposition);
+            if (matches != null && matches[1]) {
+                filename = matches[1].replace(/['"]/g, '');
+            }
+        }
+        
+        // 创建blob并下载
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+    } catch (error) {
+        console.error('下载失败:', error);
+        showError('下载失败，请稍后重试');
+    }
+}
+
+// 在线阅读功能（预留）
+function readBook(bookId) {
+    alert('在线阅读功能开发中...');
 } 

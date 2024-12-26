@@ -16,6 +16,15 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 
 @RestController
 @RequestMapping("/api")
@@ -123,6 +132,50 @@ public class BookController {
         } catch (BusinessException e) {
             return ResponseEntity.badRequest()
                     .body(new ApiResponse(false, e.getMessage(), null));
+        }
+    }
+
+    @GetMapping("/books/{id}/download")
+    public ResponseEntity<?> downloadBook(@PathVariable int id, HttpSession session) {
+        try {
+            User user = (User) session.getAttribute("user");
+            if (user == null) {
+                return ResponseEntity.status(401)
+                    .body(new ApiResponse(false, "请先登录", null));
+            }
+
+            Book book = bookService.getBookById(id);
+            if (book == null || !book.getStatus().equals(Book.Status.已通过)) {
+                return ResponseEntity.status(404)
+                    .body(new ApiResponse(false, "图书不存在或未通过审核", null));
+            }
+
+            // 获取文件路径
+            Path filePath = Paths.get(book.getFilePath());
+            if (!Files.exists(filePath)) {
+                return ResponseEntity.status(404)
+                    .body(new ApiResponse(false, "文件不存在", null));
+            }
+
+            // 读取文件
+            Resource resource = new FileSystemResource(filePath.toFile());
+            
+            // 构建文件名
+            String filename = book.getTitle() + "." + book.getFormat().toString().toLowerCase();
+            String encodedFilename = URLEncoder.encode(filename, StandardCharsets.UTF_8.toString())
+                .replace("+", "%20");
+
+            // 返回文件
+            return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .header(HttpHeaders.CONTENT_DISPOSITION, 
+                    "attachment; filename*=UTF-8''" + encodedFilename)
+                .body(resource);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500)
+                .body(new ApiResponse(false, "下载失败: " + e.getMessage(), null));
         }
     }
 } 
