@@ -91,13 +91,19 @@ public class BookController {
     }
 
     @GetMapping("/books/my-uploads")
-    public ResponseEntity<?> getMyUploads(HttpSession session) {
+    public ResponseEntity<?> getMyUploads(
+            HttpSession session,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "4") int size) {
+        
         User user = (User) session.getAttribute("user");
         if (user == null) {
             return ResponseEntity.status(403).body(new ApiResponse(false, "请先登录", null));
         }
         
-        List<Book> books = bookService.getBooksByUploader(user);
+        PageRequest pageRequest = PageRequest.of(page, size, 
+            Sort.by(Sort.Direction.DESC, "uploadTime"));
+        Page<Book> books = bookService.getBooksByUploader(user, pageRequest);
         return ResponseEntity.ok(new ApiResponse(true, "获取成功", books));
     }
 
@@ -150,6 +156,9 @@ public class BookController {
                     .body(new ApiResponse(false, "图书不存在或未通过审核", null));
             }
 
+            // 记录下载历史
+            bookService.recordDownload(user, book);
+
             // 获取文件路径
             Path filePath = Paths.get(book.getFilePath());
             if (!Files.exists(filePath)) {
@@ -177,5 +186,75 @@ public class BookController {
             return ResponseEntity.status(500)
                 .body(new ApiResponse(false, "下载失败: " + e.getMessage(), null));
         }
+    }
+
+    @GetMapping("/downloads")
+    public ResponseEntity<?> getDownloadHistory(HttpSession session) {
+        try {
+            User user = (User) session.getAttribute("user");
+            if (user == null) {
+                return ResponseEntity.status(401)
+                    .body(new ApiResponse(false, "请先登录", null));
+            }
+
+            return ResponseEntity.ok(new ApiResponse(true, "获取成功", 
+                bookService.getDownloadHistory(user)));
+        } catch (Exception e) {
+            return ResponseEntity.status(500)
+                .body(new ApiResponse(false, "获取下载历史失败", null));
+        }
+    }
+
+    @GetMapping("/books/{id}/preview")
+    public ResponseEntity<?> previewBook(@PathVariable int id, HttpSession session) {
+        try {
+            User user = (User) session.getAttribute("user");
+            if (user == null) {
+                return ResponseEntity.status(401)
+                    .body(new ApiResponse(false, "请先登录", null));
+            }
+
+            Book book = bookService.getBookById(id);
+            if (book == null || !book.getStatus().equals(Book.Status.已通过)) {
+                return ResponseEntity.status(404)
+                    .body(new ApiResponse(false, "图书不存在或未通过审核", null));
+            }
+
+            // 获取文件路径
+            Path filePath = Paths.get(book.getFilePath());
+            if (!Files.exists(filePath)) {
+                return ResponseEntity.status(404)
+                    .body(new ApiResponse(false, "文件不存在", null));
+            }
+
+            // 读取文件
+            Resource resource = new FileSystemResource(filePath.toFile());
+            
+            // 根据文件格式返回不同的Content-Type和处理方式
+            MediaType mediaType = getMediaType(book.getFormat());
+            String disposition = "inline"; // 改为 inline 而不是 attachment
+            
+            return ResponseEntity.ok()
+                .contentType(mediaType)
+                .header(HttpHeaders.CONTENT_DISPOSITION, 
+                    disposition + "; filename*=UTF-8''" + URLEncoder.encode(book.getTitle() + "." + 
+                    book.getFormat().toString().toLowerCase(), StandardCharsets.UTF_8.toString()))
+                .body(resource);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500)
+                .body(new ApiResponse(false, "预览失败: " + e.getMessage(), null));
+        }
+    }
+
+    private MediaType getMediaType(Book.Format format) {
+        return switch (format) {
+            case PDF -> MediaType.APPLICATION_PDF;
+            case EPUB -> MediaType.parseMediaType("application/epub+zip");
+            case MOBI -> MediaType.parseMediaType("application/x-mobipocket-ebook");
+            case TXT -> MediaType.TEXT_PLAIN;
+            default -> MediaType.APPLICATION_OCTET_STREAM;
+        };
     }
 } 

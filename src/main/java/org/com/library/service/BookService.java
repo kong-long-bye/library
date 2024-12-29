@@ -3,8 +3,10 @@ package org.com.library.service;
 import lombok.RequiredArgsConstructor;
 import org.com.library.entity.Book;
 import org.com.library.entity.User;
+import org.com.library.entity.Download;
 import org.com.library.exception.BusinessException;
 import org.com.library.repository.BookRepository;
+import org.com.library.repository.DownloadRepository;
 import org.com.library.config.UploadConfig;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -40,6 +42,9 @@ public class BookService {
 
     @Value("${upload.max-file-size:50MB}")
     private String maxFileSize;
+
+    @Autowired
+    private DownloadRepository downloadRepository;
 
 
 
@@ -196,9 +201,9 @@ public class BookService {
         return bookRepository.findByStatus(Book.Status.待审核);
     }
 
-    // 获取用户上传的图书列表
-    public List<Book> getBooksByUploader(User uploader) {
-        return bookRepository.findByUploaderOrderByUploadTimeDesc(uploader);
+    // 获取用户上传的图书列表（分页）
+    public Page<Book> getBooksByUploader(User uploader, Pageable pageable) {
+        return bookRepository.findByUploaderOrderByUploadTimeDesc(uploader, pageable);
     }
 
     // 获取审核历史
@@ -241,5 +246,19 @@ public class BookService {
     public Book getBookById(int id) throws BusinessException {
         return bookRepository.findById(id)
             .orElseThrow(() -> new BusinessException("图书不存在"));
+    }
+
+    // 记录下载历史
+    @Transactional
+    public void recordDownload(User user, Book book) {
+        Download download = new Download();
+        download.setUser(user);
+        download.setBook(book);
+        downloadRepository.save(download);
+    }
+
+    // 获取用户的下载历史
+    public List<Download> getDownloadHistory(User user) {
+        return downloadRepository.findByUserOrderByDownloadTimeDesc(user);
     }
 } 

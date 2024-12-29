@@ -36,7 +36,7 @@ public interface BookRepository extends JpaRepository<Book, Integer> {
     boolean existsByIsbn(String isbn);
 
     // 查询用户上传的图书
-    List<Book> findByUploaderOrderByUploadTimeDesc(User uploader);
+    Page<Book> findByUploaderOrderByUploadTimeDesc(User uploader, Pageable pageable);
 
     // 根据状态查找图书并按审核时间倒序排序
     List<Book> findByStatusInOrderByReviewTimeDesc(List<Book.Status> statuses);

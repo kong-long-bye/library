@@ -55,7 +55,13 @@ public class PageController {
         }
         return "dashboard";
     }
-
+    @GetMapping("/downloads")
+    public String downloads(HttpSession session) {
+        if (session.getAttribute("user") == null) {
+            return "redirect:/login";
+        }
+        return "downloads";
+    }
     @GetMapping("/admin")
     public String admin(HttpSession session) {
         User user = (User) session.getAttribute("user");
@@ -116,5 +122,14 @@ public class PageController {
             return "redirect:/login";
         }
         return "admin/reviews";  // 管理员审核页面
+    }
+
+    @GetMapping("/books/{id}/read")
+    public String readBook(@PathVariable int id, Model model, HttpSession session) {
+        if (session.getAttribute("user") == null) {
+            return "redirect:/login";
+        }
+        model.addAttribute("bookId", id);
+        return "books/preview";
     }
 } 

@@ -92,7 +92,7 @@ function displayResults(pageData) {
             <td>${formatDate(book.uploadTime) || ''}</td>
             <td>${book.uploader ? book.uploader.username : ''}</td>
             <td class="actions">
-                <button onclick="readBook(${book.id})" class="btn-action btn-read">在线阅读</button>
+                <button onclick="previewBook(${book.id})" class="btn-action btn-preview">在线阅读</button>
                 <button onclick="downloadBook(${book.id})" class="btn-action btn-download">下载</button>
             </td>
         </tr>
@@ -186,4 +186,10 @@ async function downloadBook(bookId) {
 // 在线阅读功能（预留）
 function readBook(bookId) {
     alert('在线阅读功能开发中...');
+}
+
+// 添加预览功能
+function previewBook(bookId) {
+    // 跳转到预览页面而不是直接打开文件
+    window.open(`/books/${bookId}/read`, '_blank');
 } 

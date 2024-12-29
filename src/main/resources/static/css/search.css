@@ -139,12 +139,12 @@
     transition: all 0.3s ease;
 }
 
-.btn-read {
+.btn-preview {
     background-color: var(--primary-color);
     color: white;
 }
 
-.btn-read:hover {
+.btn-preview:hover {
     background-color: var(--hover-color);
 }
 
