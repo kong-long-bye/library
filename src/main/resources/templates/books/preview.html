@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>在线阅读 - 数字图书馆</title>
+    <link rel="stylesheet" href="/css/main.css">
+    <!-- 引入 PDF.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.min.js"></script>
+    <style>
+        #viewerContainer {
+            width: 100%;
+            height: 100vh;
+            overflow: auto;
+        }
+        #viewer {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="viewerContainer">
+        <iframe id="viewer" th:src="@{/api/books/{id}/preview(id=${bookId})}"></iframe>
+    </div>
+</body>
+</html> 
