@@ -43,11 +43,13 @@ public interface BookRepository extends JpaRepository<Book, Integer> {
 
     // 根据ID和状态更新图书
     @Modifying
-    @Query("UPDATE Book b SET b.status = :status, b.reviewTime = :reviewTime, b.reviewer = :reviewer WHERE b.id = :id")
+    @Query("UPDATE Book b SET b.status = :status, b.reviewTime = :reviewTime, " +
+           "b.reviewer = :reviewer, b.reviewComment = :reviewComment WHERE b.id = :id")
     void updateBookStatus(@Param("id") Integer id, 
                          @Param("status") Book.Status status, 
                          @Param("reviewTime") LocalDateTime reviewTime,
-                         @Param("reviewer") User reviewer);
+                         @Param("reviewer") User reviewer,
+                         @Param("reviewComment") String reviewComment);
 
     // 通过ISBN精确查找已通过审核的图书
     @Query("SELECT b FROM Book b WHERE b.isbn = :isbn AND b.status = '已通过'")
@@ -60,4 +62,7 @@ public interface BookRepository extends JpaRepository<Book, Integer> {
     Page<Book> searchApprovedBooks(
             @Param("query") String query,
             Pageable pageable);
+
+    // 根据ISBN和上传者查找图书
+    Optional<Book> findByIsbnAndUploader(String isbn, User uploader);
 } 

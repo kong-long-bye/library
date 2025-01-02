@@ -33,6 +33,7 @@ public class BookController {
 
     private final BookService bookService;
 
+
     @PostMapping("/upload")
     public ResponseEntity<?> uploadBook(
             @RequestParam String title,
@@ -47,14 +48,21 @@ public class BookController {
                 return ResponseEntity.badRequest().body(Map.of("message", "请先登录"));
             }
 
-            System.out.println("接收到上传请求 - 文件大小: " + file.getSize());
-
-            Book book = bookService.uploadBook(title, author, isbn, category, file, user);
-            System.out.println("上传成功，返回响应");
-            return ResponseEntity.ok(Map.of(
-                "message", "上传成功",
-                "bookId", book.getId()
-            ));
+            // 检查是否是重新提交
+            Book existingBook = bookService.findByIsbnAndUploader(isbn, user)
+                .orElse(null);
+            
+            if (existingBook != null && existingBook.getStatus() == Book.Status.未通过) {
+                // 如果是重新提交，使用原来的ID
+                return ResponseEntity.ok(bookService.resubmitBook(existingBook.getId(), title, author, category, file, user));
+            } else {
+                // 新上传
+                Book book = bookService.uploadBook(title, author, isbn, category, file, user);
+                return ResponseEntity.ok(Map.of(
+                    "message", "上传成功",
+                    "bookId", book.getId()
+                ));
+            }
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
@@ -73,20 +81,43 @@ public class BookController {
     }
 
     @PostMapping("/books/{id}/review")
-    public ResponseEntity<?> reviewBook(@PathVariable Integer id, 
-                                      @RequestParam String status,
-                                      HttpSession session) {
+    public ResponseEntity<?> reviewBook(
+            @PathVariable Integer id,
+            @RequestParam String status,
+            @RequestParam(required = false) String reason,
+            HttpSession session) {
+        
+        // 添加调试日志
+        System.out.println("接收到审核请求 - id: " + id + ", status: " + status + ", reason: " + reason);
+        
         User user = (User) session.getAttribute("user");
         if (user == null || !user.isAdmin()) {
             return ResponseEntity.status(403).body(new ApiResponse(false, "无权限访问", null));
         }
 
         try {
-            Book book = bookService.reviewBook(id, status, user);
-            String message = status.equals("已通过") ? "图书审核通过" : "图书审核未通过";
+            // 参数验证
+            if (status == null || status.trim().isEmpty()) {
+                return ResponseEntity.badRequest().body(new ApiResponse(false, "审核状态不能为空", null));
+            }
+            
+            if ("未通过".equals(status) && (reason == null || reason.trim().isEmpty())) {
+                return ResponseEntity.badRequest().body(new ApiResponse(false, "拒绝时必须提供理由", null));
+            }
+
+            Book book = bookService.reviewBook(id, status, reason, user);
+            String message = status.equals("已通过") ? 
+                "图书审核通过" : 
+                String.format("图书审核未通过：%s", reason);
+            
             return ResponseEntity.ok(new ApiResponse(true, message, book));
         } catch (BusinessException e) {
+            System.err.println("审核失败: " + e.getMessage());
             return ResponseEntity.badRequest().body(new ApiResponse(false, e.getMessage(), null));
+        } catch (Exception e) {
+            System.err.println("审核发生异常: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(500).body(new ApiResponse(false, "系统错误", null));
         }
     }
 

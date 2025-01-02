@@ -31,26 +31,55 @@ function displayUploads(pageData) {
     if (!pageData.content || pageData.content.length === 0) {
         tbody.innerHTML = `
             <tr>
-                <td colspan="4" class="no-data">暂无上传记录</td>
+                <td colspan="6" class="no-data">暂无上传记录</td>
             </tr>
         `;
         return;
     }
 
-    tbody.innerHTML = pageData.content.map(book => `
-        <tr>
-            <td>${book.title}</td>
-            <td>${book.author}</td>
-            <td>${formatDate(book.uploadTime)}</td>
-            <td>
-                <span class="status-badge ${getStatusClass(book.status)}">
-                    ${book.status}
-                </span>
-            </td>
-        </tr>
-    `).join('');
+    tbody.innerHTML = pageData.content.map(book => {
+        // 准备要传递的图书数据
+        const bookData = {
+            id: book.id,
+            title: book.title,
+            author: book.author,
+            isbn: book.isbn,
+            category: book.category
+        };
+        
+        return `
+            <tr>
+                <td>${book.title}</td>
+                <td>${book.author}</td>
+                <td>${formatDate(book.uploadTime)}</td>
+                <td>
+                    <span class="status-badge ${getStatusClass(book.status)}">
+                        ${book.status}
+                    </span>
+                </td>
+                <td>
+                    ${book.status === '未通过' && book.reviewComment ? 
+                        `<span class="review-comment" title="${book.reviewComment}">
+                            ${book.reviewComment}
+                        </span>` : 
+                        '-'
+                    }
+                </td>
+                <td>
+                    ${book.status === '未通过' ? 
+                        `<button onclick='resubmitBook(${JSON.stringify(bookData)
+                            .replace(/'/g, "&#39;")
+                            .replace(/"/g, "&quot;")})' 
+                            class="btn-resubmit">
+                            重新提交
+                        </button>` : 
+                        '-'
+                    }
+                </td>
+            </tr>
+        `;
+    }).join('');
 
-    // 更新分页控件
     updatePagination(pageData);
 }
 
@@ -126,4 +155,30 @@ function showError(message) {
             <td colspan="4" class="error-message">${message}</td>
         </tr>
     `;
+}
+
+// 重新提交图书
+function resubmitBook(book) {
+    try {
+        // 添加调试日志
+        console.log('重新提交图书:', book);
+
+        // 跳转到上传页面并携带图书信息
+        const params = new URLSearchParams({
+            id: book.id,
+            title: book.title,
+            author: book.author,
+            isbn: book.isbn,
+            category: book.category,
+            isResubmit: 'true'  // 标记这是一个重新提交
+        });
+
+        // 添加调试日志
+        console.log('跳转URL:', `/books/upload?${params.toString()}`);
+        
+        window.location.href = `/books/upload?${params.toString()}`;
+    } catch (error) {
+        console.error('重新提交失败:', error);
+        alert('重新提交失败，请稍后重试');
+    }
 } 

@@ -69,9 +69,15 @@ function showBookDetail(book) {
                 </div>
             </div>
         </div>
+        <div class="book-actions">
+            ${book.format === 'PDF' ? 
+                `<button onclick="previewBook(${book.id})" class="btn-preview">预览</button>` :
+                `<button onclick="downloadBook(${book.id})" class="btn-download">下载</button>`
+            }
+        </div>
         <div class="review-actions">
             <button onclick="reviewBook(${book.id}, '已通过')" class="btn-approve">通过</button>
-            <button onclick="reviewBook(${book.id}, '未通过')" class="btn-reject">拒绝</button>
+            <button onclick="showRejectDialog(${book.id})" class="btn-reject">拒绝</button>
         </div>
     `;
 }
@@ -103,25 +109,118 @@ function loadReviewHistory() {
         });
 }
 
-// 审核图书
-function reviewBook(bookId, status) {
-    const loadingOverlay = showLoadingOverlay();
+// 显示拒绝理由弹窗
+function showRejectDialog(bookId) {
+    // 创建遮罩层
+    const overlay = document.createElement('div');
+    overlay.className = 'review-dialog';
+    overlay.innerHTML = `
+        <div class="dialog-content">
+            <h3>审核不通过</h3>
+            <div class="form-group">
+                <label for="rejectReason">请输入不通过原因：</label>
+                <textarea 
+                    id="rejectReason" 
+                    placeholder="请详细说明不通过的原因..." 
+                    rows="4"
+                    maxlength="500"
+                ></textarea>
+                <div class="char-count">
+                    <span id="charCount">0</span>/500
+                </div>
+            </div>
+            <div class="dialog-actions">
+                <button type="button" class="btn-cancel">取消</button>
+                <button type="button" class="btn-confirm">确认</button>
+            </div>
+        </div>
+    `;
+
+    // 添加到body
+    document.body.appendChild(overlay);
+
+    // 获取元素
+    const cancelBtn = overlay.querySelector('.btn-cancel');
+    const confirmBtn = overlay.querySelector('.btn-confirm');
+    const textarea = overlay.querySelector('#rejectReason');
+    const charCount = overlay.querySelector('#charCount');
+
+    // 字符计数
+    textarea.addEventListener('input', () => {
+        const count = textarea.value.length;
+        charCount.textContent = count;
+        if (count >= 500) {
+            charCount.style.color = 'red';
+        } else {
+            charCount.style.color = '';
+        }
+    });
+
+    // 聚焦到文本框
+    textarea.focus();
+
+    // 取消按钮事件
+    cancelBtn.onclick = () => {
+        document.body.removeChild(overlay);
+    };
+
+    // ESC键关闭弹窗
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            document.body.removeChild(overlay);
+        }
+    });
+
+    // 确认按钮事件
+    confirmBtn.onclick = () => {
+        const reason = textarea.value.trim();
+        if (!reason) {
+            alert('请输入不通过原因');
+            return;
+        }
+        if (reason.length > 500) {
+            alert('不通过原因不能超过500字');
+            return;
+        }
+        reviewBook(bookId, '未通过', reason);
+        document.body.removeChild(overlay);
+    };
+}
+
+// 修改审核函数，添加理由参数
+function reviewBook(bookId, status, reason = '') {
+    const formData = new FormData();
+    formData.append('status', status);
+    if (reason) {
+        formData.append('reason', reason);
+    }
+    
+    // 添加调试日志
+    console.log('发送审核请求:', {
+        bookId,
+        status,
+        reason
+    });
     
     fetch(`/api/books/${bookId}/review`, {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: `status=${status}`
+        // 修改：不要使用 FormData，改用 URLSearchParams
+        body: new URLSearchParams({
+            status: status,
+            reason: reason || ''
+        })
     })
-    .then(response => response.json())
+    .then(response => {
+        // 添加调试日志
+        console.log('响应状态:', response.status);
+        return response.json();
+    })
     .then(data => {
+        console.log('响应数据:', data);
         if (data.success) {
             showSuccessMessage(data.message);
-            // 刷新待审核列表和审核历史
             loadPendingBooks();
             loadReviewHistory();
-            // 清空详情面板
             document.getElementById('bookDetail').innerHTML = `
                 <div class="empty-state">
                     <p>请从左侧选择要审核的图书</p>
@@ -134,10 +233,17 @@ function reviewBook(bookId, status) {
     .catch(error => {
         console.error('审核失败:', error);
         showErrorMessage('审核操作失败，请重试');
-    })
-    .finally(() => {
-        hideLoadingOverlay(loadingOverlay);
     });
+}
+
+// 预览图书
+function previewBook(bookId) {
+    window.open(`/books/${bookId}/read`, '_blank');
+}
+
+// 下载图书
+function downloadBook(bookId) {
+    window.location.href = `/api/books/${bookId}/download`;
 }
 
 // 格式化日期

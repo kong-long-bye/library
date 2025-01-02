@@ -12,22 +12,13 @@
         <header class="header">
             <h1>数字图书馆</h1>
             <div class="user-info">
+                <a href="/dashboard" class="btn-back">返回个人中心</a>
                 <span th:text="${'欢迎, ' + session.user.username}">欢迎, 用户</span>
-                <a href="/api/logout">退出</a>
+                <a href="/logout">退出</a>
             </div>
         </header>
 
         <div class="content-wrapper">
-            <nav class="sidebar">
-                <ul class="nav-menu">
-                    <li><a href="/dashboard">个人中心</a></li>
-                    <li><a href="/books/upload" class="active">上传图书</a></li>
-                    <li><a href="/books">图书列表</a></li>
-                    <li><a href="/user/downloads">下载历史</a></li>
-                    <li><a href="/user/favorites">我的收藏</a></li>
-                </ul>
-            </nav>
-
             <main class="main-content">
                 <div class="upload-container">
                     <h2>上传图书</h2>
@@ -82,5 +73,26 @@
         </div>
     </div>
     <script src="/js/books.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // 从 URL 参数中获取图书信息并填充表单
+        const urlParams = new URLSearchParams(window.location.search);
+        
+        // 添加调试日志
+        console.log('URL参数:', Object.fromEntries(urlParams.entries()));
+        
+        if (urlParams.has('title')) {
+            document.getElementById('title').value = urlParams.get('title');
+            document.getElementById('author').value = urlParams.get('author');
+            document.getElementById('isbn').value = urlParams.get('isbn');
+            document.getElementById('category').value = urlParams.get('category');
+            
+            // 如果是重新提交，禁用 ISBN 输入框
+            if (urlParams.get('isResubmit') === 'true') {
+                document.getElementById('isbn').readOnly = true;
+            }
+        }
+    });
+    </script>
 </body>
 </html> 

@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Arrays;
 import java.util.Collections;
 import java.io.File;
+import java.util.Optional;
 
 
 @Service
@@ -127,7 +128,7 @@ public class BookService {
 
     // 审核图书
     @Transactional
-    public Book reviewBook(Integer bookId, String status, User reviewer) throws BusinessException {
+    public Book reviewBook(Integer bookId, String status, String reason, User reviewer) throws BusinessException {
         if (!reviewer.isAdmin()) {
             throw new BusinessException("无权限进行审核");
         }
@@ -140,9 +141,14 @@ public class BookService {
             switch (status) {
                 case "已通过":
                     newStatus = Book.Status.已通过;
+                    book.setReviewComment(null);  // 通过时清空审核意见
                     break;
                 case "未通过":
                     newStatus = Book.Status.未通过;
+                    if (reason == null || reason.trim().isEmpty()) {
+                        throw new BusinessException("拒绝时必须提供理由");
+                    }
+                    book.setReviewComment(reason.trim());  // 设置审核意见
                     break;
                 default:
                     throw new BusinessException("无效的审核状态");
@@ -164,13 +170,13 @@ public class BookService {
                 Files.deleteIfExists(Paths.get(book.getFilePath()));
             }
 
-            // 使用更新方法
-            bookRepository.updateBookStatus(bookId, newStatus, now, reviewer);
+            // 保存更新到数据库
+            Book updatedBook = bookRepository.save(book);
             
-            // 发送通知给上传者（如果需要）
-            notifyUploader(book, newStatus);
+            // 发送通知给上传者
+            notifyUploader(updatedBook);
             
-            return bookRepository.findById(bookId).orElseThrow(() -> new BusinessException("图书不存在"));
+            return updatedBook;
         } catch (IOException e) {
             throw new BusinessException("文件处理失败: " + e.getMessage());
         }
@@ -213,11 +219,19 @@ public class BookService {
         );
     }
 
-    // 通知上传者（可选功能）
-    private void notifyUploader(Book book, Book.Status status) {
-        // TODO: 实现通知逻辑，比如发送系统消息或邮件
-        System.out.println("通知上传者 " + book.getUploader().getUsername() + 
-                         " 图书《" + book.getTitle() + "》审核" + status);
+    // 通知上传者
+    private void notifyUploader(Book book) {
+        String message = String.format("您上传的图书《%s》已%s", 
+            book.getTitle(), 
+            book.getStatus().toString()
+        );
+        
+        if (book.getStatus() == Book.Status.未通过 && book.getReviewComment() != null) {
+            message += String.format("\n不通过原因：%s", book.getReviewComment());
+        }
+        
+        // TODO: 实现实际的通知逻辑，比如发送系统消息或邮件
+        System.out.println("通知上传者: " + book.getUploader().getUsername() + " - " + message);
     }
 
     // 通过ISBN查找已通过审核的图书
@@ -260,5 +274,64 @@ public class BookService {
     // 获取用户的下载历史
     public List<Download> getDownloadHistory(User user) {
         return downloadRepository.findByUserOrderByDownloadTimeDesc(user);
+    }
+
+    // 根据ISBN和上传者查找图书
+    public Optional<Book> findByIsbnAndUploader(String isbn, User uploader) {
+        return bookRepository.findByIsbnAndUploader(isbn, uploader);
+    }
+
+    // 重新提交图书
+    @Transactional
+    public Book resubmitBook(Integer bookId, String title, String author, String category, 
+                           MultipartFile file, User uploader) throws BusinessException {
+        Book book = bookRepository.findById(bookId)
+                .orElseThrow(() -> new BusinessException("图书不存在"));
+
+        // 验证是否是同一个用户的重新提交
+        if (!book.getUploader().getId().equals(uploader.getId())) {
+            throw new BusinessException("无权重新提交此图书");
+        }
+
+        // 验证图书状态
+        if (book.getStatus() != Book.Status.未通过) {
+            throw new BusinessException("只能重新提交未通过的图书");
+        }
+
+        try {
+            // 更新图书信息
+            book.setTitle(title);
+            book.setAuthor(author);
+            book.setCategory(category);
+            
+            // 处理新文件
+            String format = getFileFormat(file.getOriginalFilename());
+            if (!isValidFormat(format)) {
+                throw new BusinessException("不支持的文件格式");
+            }
+
+            // 保存新文件
+            String fileName = UUID.randomUUID().toString() + "." + format;
+            String tempPath = uploadPath + "/temp/" + fileName;
+            Files.createDirectories(Paths.get(uploadPath + "/temp"));
+            Files.copy(file.getInputStream(), Paths.get(tempPath));
+
+            // 删除旧文件
+            if (book.getFilePath() != null) {
+                Files.deleteIfExists(Paths.get(book.getFilePath()));
+            }
+
+            // 更新文件路径和状态
+            book.setFilePath(tempPath);
+            book.setFormat(Book.Format.valueOf(format.toUpperCase()));
+            book.setStatus(Book.Status.待审核);
+            book.setReviewComment(null);  // 清除之前的审核意见
+            book.setReviewTime(null);     // 清除之前的审核时间
+            book.setReviewer(null);       // 清除之前的审核人
+
+            return bookRepository.save(book);
+        } catch (IOException e) {
+            throw new BusinessException("文件处理失败: " + e.getMessage());
+        }
     }
 } 

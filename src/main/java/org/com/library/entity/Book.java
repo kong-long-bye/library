@@ -49,6 +49,9 @@ public class Book {
     @Column(nullable = false)
     private Status status = Status.待审核;
 
+    @Column(name = "review_comment", length = 500)
+    private String reviewComment;
+
     public enum Format {
         PDF, EPUB, MOBI, TXT
     }
