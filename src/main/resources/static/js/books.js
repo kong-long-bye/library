@@ -4,6 +4,12 @@ if (uploadForm) {
     uploadForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         
+        const isbn = document.getElementById('isbn').value;
+        if (!validateISBN(document.getElementById('isbn'))) {
+            showError('请输入正确的13位ISBN编号');
+            return;
+        }
+        
         const formData = new FormData(uploadForm);
         const submitButton = uploadForm.querySelector('button[type="submit"]');
         
@@ -222,4 +228,78 @@ function uploadBook(formData) {
         // },
         body: formData
     });
+}
+
+// 修改 ISBN 验证函数
+function validateISBN(input) {
+    const isbn = input.value.trim();
+    const isbnTip = document.getElementById('isbnTip');
+    const submitButton = document.querySelector('button[type="submit"]');
+    
+    // 如果为空，允许提交
+    if (isbn.length === 0) {
+        isbnTip.textContent = '如果是单本图书，建议填写10位或13位ISBN编号';
+        isbnTip.className = 'form-tip';
+        submitButton.disabled = false;
+        return true;
+    }
+    
+    // 移除所有非数字字符和X/x（ISBN-10的校验位可能是X）
+    input.value = isbn.replace(/[^\dXx]/g, '').toUpperCase();
+    
+    // 如果不是10位或13位，显示提示但允许提交
+    if (input.value.length !== 10 && input.value.length !== 13) {
+        isbnTip.textContent = '当前输入' + input.value.length + '位，建议使用10位或13位ISBN';
+        isbnTip.className = 'form-tip warning';
+        submitButton.disabled = false;
+        return true;
+    }
+    
+    // 验证ISBN格式
+    if (input.value.length === 13 && isValidISBN13(input.value)) {
+        isbnTip.textContent = 'ISBN-13格式正确';
+        isbnTip.className = 'form-tip success';
+        submitButton.disabled = false;
+        return true;
+    } else if (input.value.length === 10 && isValidISBN10(input.value)) {
+        isbnTip.textContent = 'ISBN-10格式正确';
+        isbnTip.className = 'form-tip success';
+        submitButton.disabled = false;
+        return true;
+    } else if (input.value.length === 10 || input.value.length === 13) {
+        isbnTip.textContent = 'ISBN校验位不正确，但仍可提交';
+        isbnTip.className = 'form-tip warning';
+        submitButton.disabled = false;
+        return true;
+    }
+    
+    return true; // 始终返回true，允许提交
+}
+
+// 添加 ISBN-10 校验算法
+function isValidISBN10(isbn) {
+    if (!/^[\dX]{10}$/.test(isbn)) return false;
+    
+    let sum = 0;
+    for (let i = 0; i < 9; i++) {
+        sum += parseInt(isbn[i]) * (10 - i);
+    }
+    
+    const lastChar = isbn[9];
+    const checkDigit = lastChar === 'X' ? 10 : parseInt(lastChar);
+    
+    return (sum + checkDigit) % 11 === 0;
+}
+
+// ISBN-13校验算法
+function isValidISBN13(isbn) {
+    if (!/^\d{13}$/.test(isbn)) return false;
+    
+    let sum = 0;
+    for (let i = 0; i < 12; i++) {
+        sum += (i % 2 === 0 ? 1 : 3) * parseInt(isbn[i]);
+    }
+    
+    const checkDigit = (10 - (sum % 10)) % 10;
+    return checkDigit === parseInt(isbn[12]);
 } 

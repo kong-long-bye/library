@@ -39,7 +39,7 @@ public interface BookRepository extends JpaRepository<Book, Integer> {
     Page<Book> findByUploaderOrderByUploadTimeDesc(User uploader, Pageable pageable);
 
     // 根据状态查找图书并按审核时间倒序排序
-    List<Book> findByStatusInOrderByReviewTimeDesc(List<Book.Status> statuses);
+    Page<Book> findByStatusInOrderByReviewTimeDesc(List<Book.Status> statuses, Pageable pageable);
 
     // 根据ID和状态更新图书
     @Modifying

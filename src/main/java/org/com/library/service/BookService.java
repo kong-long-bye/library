@@ -41,7 +41,7 @@ public class BookService {
     @Value("${library.upload.book-path}")
     private String uploadPath;
 
-    @Value("${upload.max-file-size:50MB}")
+    @Value("${upload.max-file-size:200MB}")
     private String maxFileSize;
 
     @Autowired
@@ -54,6 +54,18 @@ public class BookService {
     public Book uploadBook(String title, String author, String isbn, 
                          String category, MultipartFile file,
                          User uploader) throws BusinessException {
+        // ISBN验证（如果提供了ISBN）
+        if (isbn != null && !isbn.trim().isEmpty()) {
+            isbn = isbn.trim().toUpperCase();
+            // 移除所有非数字和X字符
+            isbn = isbn.replaceAll("[^0-9X]", "");
+            
+            // 检查是否已存在
+            if (bookRepository.existsByIsbn(isbn)) {
+                throw new BusinessException("该ISBN已存在");
+            }
+        }
+
         // 验证文件大小
         long maxSize = parseSize(maxFileSize);
         if (file.getSize() > maxSize) {
@@ -213,9 +225,10 @@ public class BookService {
     }
 
     // 获取审核历史
-    public List<Book> getReviewHistory() {
+    public Page<Book> getReviewHistory(Pageable pageable) {
         return bookRepository.findByStatusInOrderByReviewTimeDesc(
-            Arrays.asList(Book.Status.已通过, Book.Status.未通过)
+            Arrays.asList(Book.Status.已通过, Book.Status.未通过),
+            pageable
         );
     }
 
@@ -332,6 +345,20 @@ public class BookService {
             return bookRepository.save(book);
         } catch (IOException e) {
             throw new BusinessException("文件处理失败: " + e.getMessage());
+        }
+    }
+
+    // 添加 ISBN-13 校验方法
+    private boolean isValidISBN13(String isbn) {
+        try {
+            int sum = 0;
+            for (int i = 0; i < 12; i++) {
+                sum += (i % 2 == 0 ? 1 : 3) * Character.getNumericValue(isbn.charAt(i));
+            }
+            int checkDigit = (10 - (sum % 10)) % 10;
+            return checkDigit == Character.getNumericValue(isbn.charAt(12));
+        } catch (Exception e) {
+            return false;
         }
     }
 } 

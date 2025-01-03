@@ -82,31 +82,78 @@ function showBookDetail(book) {
     `;
 }
 
-// 加载审核历史
+// 添加分页相关变量
+let currentHistoryPage = 0;
+const historyPageSize = 10;
+
+// 修改加载审核历史函数
 function loadReviewHistory() {
-    fetch('/api/books/review-history')
+    fetch(`/api/books/review-history?page=${currentHistoryPage}&size=${historyPageSize}`)
         .then(response => response.json())
         .then(data => {
             if (data.success) {
                 const historyList = document.getElementById('reviewHistory');
-                historyList.innerHTML = data.data.map(book => `
-                    <tr>
-                        <td>${book.title}</td>
-                        <td>${book.author}</td>
-                        <td>${book.isbn}</td>
-                        <td>
-                            <span class="status-badge status-${book.status === '已通过' ? 'approved' : 'rejected'}">
-                                ${book.status}
-                            </span>
-                        </td>
-                    </tr>
-                `).join('');
+                if (data.data.content && data.data.content.length > 0) {
+                    historyList.innerHTML = data.data.content.map(book => `
+                        <tr>
+                            <td>${book.title}</td>
+                            <td>${book.author}</td>
+                            <td>${book.isbn}</td>
+                            <td>
+                                <span class="status-badge status-${book.status === '已通过' ? 'approved' : 'rejected'}">
+                                    ${book.status}
+                                </span>
+                            </td>
+                            <td>${formatDate(book.reviewTime)}</td>
+                        </tr>
+                    `).join('');
+                    
+                    // 更新分页控件
+                    updateHistoryPagination(data.data);
+                } else {
+                    historyList.innerHTML = '<tr><td colspan="5" class="empty-state">暂无审核历史</td></tr>';
+                }
             }
         })
         .catch(error => {
             console.error('加载审核历史失败:', error);
             showErrorMessage('加载审核历史失败');
         });
+}
+
+// 添加分页控件更新函数
+function updateHistoryPagination(pageData) {
+    const pagination = document.getElementById('historyPagination');
+    const totalPages = pageData.totalPages;
+    
+    let html = '';
+    
+    // 上一页按钮
+    if (currentHistoryPage > 0) {
+        html += `<button onclick="changeHistoryPage(${currentHistoryPage - 1})" class="page-btn">上一页</button>`;
+    }
+    
+    // 页码按钮
+    for (let i = 0; i < totalPages; i++) {
+        if (i === currentHistoryPage) {
+            html += `<button class="page-btn active">${i + 1}</button>`;
+        } else {
+            html += `<button onclick="changeHistoryPage(${i})" class="page-btn">${i + 1}</button>`;
+        }
+    }
+    
+    // 下一页按钮
+    if (currentHistoryPage < totalPages - 1) {
+        html += `<button onclick="changeHistoryPage(${currentHistoryPage + 1})" class="page-btn">下一页</button>`;
+    }
+    
+    pagination.innerHTML = html;
+}
+
+// 添加页面切换函数
+function changeHistoryPage(page) {
+    currentHistoryPage = page;
+    loadReviewHistory();
 }
 
 // 显示拒绝理由弹窗

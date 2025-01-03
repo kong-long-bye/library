@@ -34,9 +34,12 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="isbn">ISBN</label>
-                            <input type="text" id="isbn" name="isbn" required>
-                            <small class="form-tip">请输入13位ISBN编号</small>
+                            <label for="isbn">ISBN（选填）</label>
+                            <input type="text" 
+                                   id="isbn" 
+                                   name="isbn" 
+                                   oninput="validateISBN(this)">
+                            <div class="form-tip" id="isbnTip">如果是单本图书，建议填写10位或13位ISBN编号</div>
                         </div>
 
                         <div class="form-group">
@@ -61,7 +64,7 @@
                             <label for="file">选择文件</label>
                             <div class="file-upload">
                                 <input type="file" id="file" name="file" accept=".pdf,.epub,.mobi" required>
-                                <div class="file-info">支持PDF, EPUB, MOBI格式，最大50MB</div>
+                                <div class="file-info">支持PDF, EPUB, MOBI格式，最大200MB</div>
                             </div>
                         </div>
 

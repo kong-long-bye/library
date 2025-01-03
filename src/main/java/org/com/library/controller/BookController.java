@@ -139,13 +139,18 @@ public class BookController {
     }
 
     @GetMapping("/books/review-history")
-    public ResponseEntity<?> getReviewHistory(HttpSession session) {
+    public ResponseEntity<?> getReviewHistory(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            HttpSession session) {
         User user = (User) session.getAttribute("user");
         if (user == null || !user.isAdmin()) {
             return ResponseEntity.status(403).body(new ApiResponse(false, "无权限访问", null));
         }
         
-        List<Book> books = bookService.getReviewHistory();
+        PageRequest pageRequest = PageRequest.of(page, size, 
+            Sort.by(Sort.Direction.DESC, "reviewTime"));
+        Page<Book> books = bookService.getReviewHistory(pageRequest);
         return ResponseEntity.ok(new ApiResponse(true, "获取成功", books));
     }
 

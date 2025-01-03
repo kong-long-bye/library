@@ -171,4 +171,34 @@
     background: var(--primary-color);
     color: white;
     border-color: var(--primary-color);
+}
+
+.form-tip {
+    font-size: 12px;
+    margin-top: 4px;
+    color: #666;
+}
+
+.form-tip.error {
+    color: #ff4d4f;
+}
+
+.form-tip.success {
+    color: #52c41a;
+}
+
+.form-tip.warning {
+    color: #faad14;
+}
+
+input:invalid {
+    border-color: #ff4d4f;
+}
+
+input:valid {
+    border-color: #52c41a;
+}
+
+input.warning {
+    border-color: #faad14;
 } 
