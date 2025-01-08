@@ -183,10 +183,6 @@ async function downloadBook(bookId) {
     }
 }
 
-// 在线阅读功能（预留）
-function readBook(bookId) {
-    alert('在线阅读功能开发中...');
-}
 
 // 添加预览功能
 function previewBook(bookId) {
