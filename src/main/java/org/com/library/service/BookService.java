@@ -123,7 +123,7 @@ public class BookService {
         }
     }
 
-    // 解析文件大小配置（如：50MB -> 52428800）
+    // 解析文件大小配置
     private long parseSize(String size) {
         size = size.toUpperCase();
         long multiplier = 1;
@@ -255,17 +255,6 @@ public class BookService {
 
     // 搜索已通过审核的图书
     public Page<Book> searchApprovedBooks(String query, Pageable pageable) {
-        // 如果提供了ISBN，优先使用ISBN搜索
-        if (query != null && query.matches("\\d{13}")) {
-            try {
-                Book book = findApprovedBookByIsbn(query);
-                List<Book> books = Collections.singletonList(book);
-                return new PageImpl<>(books, pageable, 1);
-            } catch (BusinessException e) {
-                // ISBN未找到，继续使用其他条件搜索
-            }
-        }
-        
         return bookRepository.searchApprovedBooks(query, pageable);
     }
 

@@ -156,25 +156,13 @@ public class BookController {
 
     @GetMapping("/books/search")
     public ResponseEntity<?> searchBooks(
-            @RequestParam(required = false) String query,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+        @RequestParam String query,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size) {
         
-        System.out.println("接收到搜索请求 - query: " + query + ", page: " + page + ", size: " + size);
-        
-        try {
-            PageRequest pageRequest = PageRequest.of(page, size, 
-                Sort.by(Sort.Direction.DESC, "uploadTime"));
-            
-            Page<Book> books = bookService.searchApprovedBooks(query, pageRequest);
-            
-            System.out.println("搜索结果数量: " + books.getTotalElements());
-            
-            return ResponseEntity.ok(new ApiResponse(true, "搜索成功", books));
-        } catch (BusinessException e) {
-            return ResponseEntity.badRequest()
-                    .body(new ApiResponse(false, e.getMessage(), null));
-        }
+        PageRequest pageRequest = PageRequest.of(page, size);
+        Page<Book> books = bookService.searchApprovedBooks(query, pageRequest);
+        return ResponseEntity.ok(new ApiResponse(true, "查询成功", books));
     }
 
     @GetMapping("/books/{id}/download")
